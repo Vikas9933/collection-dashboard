@@ -28,6 +28,21 @@ function isMissingTenantColumnError(message: string, column: string) {
   return message.includes(column);
 }
 
+type TenantUsageQueryRow = {
+  id: string;
+  name: string;
+  slug: string;
+  is_active: boolean;
+  max_users: number | null;
+  max_storage_mb: number | null;
+  storage_used_mb: number;
+  subscription_plan_id: string | null;
+  subscription_plans:
+    | { name: string; max_users: number; max_storage_mb: number }
+    | { name: string; max_users: number; max_storage_mb: number }[]
+    | null;
+};
+
 const createTenantSchema = z.object({
   name: z.string().min(2, "Client name is required."),
   slug: z
@@ -121,7 +136,7 @@ export async function getTenantUsage(): Promise<TenantUsageRow[]> {
     )
     .order("name");
 
-  let tenants = full.data;
+  let tenants: TenantUsageQueryRow[] | null = (full.data as TenantUsageQueryRow[] | null) ?? null;
   if (full.error) {
     if (!isMissingTenantColumnError(full.error.message, "subscription_plan_id")) {
       throw new Error(full.error.message);
@@ -131,14 +146,15 @@ export async function getTenantUsage(): Promise<TenantUsageRow[]> {
       .select("id, name, slug, is_active")
       .order("name");
     if (basic.error) throw new Error(basic.error.message);
-    tenants = basic.data?.map((t) => ({
-      ...t,
-      max_users: null,
-      max_storage_mb: null,
-      storage_used_mb: 0,
-      subscription_plan_id: null,
-      subscription_plans: null,
-    })) ?? [];
+    tenants =
+      basic.data?.map((t) => ({
+        ...t,
+        max_users: null,
+        max_storage_mb: null,
+        storage_used_mb: 0,
+        subscription_plan_id: null,
+        subscription_plans: null,
+      })) ?? [];
   }
 
   const rows: TenantUsageRow[] = [];

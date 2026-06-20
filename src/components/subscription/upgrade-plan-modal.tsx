@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { Sparkles, X } from "lucide-react";
-import { planTierBadgeClass, sortSubscriptionPlans } from "@/lib/subscriptions/plans";
+import { planTierBadgeClass, sortSubscriptionPlans, SUBSCRIPTION_PLAN_ORDER, type SubscriptionPlanCode } from "@/lib/subscriptions/plans";
 import { FEATURE_LABELS, featuresForPlanCode } from "@/lib/subscriptions/features";
-import type { SubscriptionPlan, SubscriptionPlanCode, TenantSubscriptionContext } from "@/lib/types";
-import { SUBSCRIPTION_PLAN_ORDER } from "@/lib/subscriptions/plans";
+import type { SubscriptionPlan, TenantSubscriptionContext } from "@/lib/types";
 
 interface UpgradePlanModalProps {
   context: TenantSubscriptionContext;
